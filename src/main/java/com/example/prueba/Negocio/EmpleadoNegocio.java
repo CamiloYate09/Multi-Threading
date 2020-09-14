@@ -19,10 +19,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 
+/**
+ * Servicio encargado de leer las lineas de un documento CSV y crear los objectos
+ * para ser guardados.
+ */
 @Service
 public class EmpleadoNegocio {
 
@@ -42,17 +45,22 @@ public class EmpleadoNegocio {
         List<Empleado> empleadoLeido = parseCSVArchivo(archivo);
         logger.info("Guardar Lista de Usuario con size {}", empleadoLeido.size(), "" + Thread.currentThread().getName());
         for (Empleado empleado : empleadoLeido) {
-            Departamento idDepartment = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getNombreDepartamento());
+            Departamento idDepartment = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getDepartamento().getNombreDepartamento());
             if (Objects.isNull(idDepartment)) {
+                logger.info("*** Inicio: Departamento Núlo ***");
                 Departamento valor = new Departamento();
-                valor.setNombreDepartamento(empleado.getNombreDepartamento());
+                valor.setNombreDepartamento(empleado.getDepartamento().getNombreDepartamento());
                 departamentoRepository.save(valor);
+                logger.info("*** Inicio: Departamento Guardado ***");
+
             }
-            Departamento idDepartamentoBusqueda = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getNombreDepartamento());
+            Departamento idDepartamentoBusqueda = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getDepartamento().getNombreDepartamento());
             if (idDepartamentoBusqueda != null) {
+                logger.info("*** Inicio: Departamento Existente ***");
                 empleado.setDepartamento(idDepartamentoBusqueda);
                 empleadoInsertar.add((Empleado) empleado);
                 empleadoInsertar = empleadoRepository.saveAll(empleadoInsertar);
+                logger.info("*** Inicio: Empleado Guardado ***");
             }
         }
 
@@ -63,13 +71,13 @@ public class EmpleadoNegocio {
 
     }
 
-    @Async
-    public CompletableFuture<List<Empleado>> findAllEmpleados() {
-        logger.info("Obteniedo lista de todos los empleados" + Thread.currentThread().getName());
-        List<Empleado> empleado = empleadoRepository.findAll();
-        return CompletableFuture.completedFuture(empleado);
-    }
 
+    /**
+     * Método encargado de leer el archivo CSV,
+     * @param archivo
+     * @return
+     * @throws Exception
+     */
     private List<Empleado> parseCSVArchivo(final MultipartFile archivo) throws Exception {
         final List<Empleado> empleados = new ArrayList<>();
         try {
@@ -78,6 +86,7 @@ public class EmpleadoNegocio {
                 String linea;
 
                 while ((linea = br.readLine()) != null) {
+                    logger.info("*** Inicio: parseCSVArchivo ***");
                     final String[] data = linea.split(",");
                     final Empleado empleado1 = new Empleado();
                     Departamento departamento = new Departamento();
@@ -85,10 +94,10 @@ public class EmpleadoNegocio {
                     empleado1.setCargo(data[1]);
                     empleado1.setSalario(Double.valueOf(data[2]));
                     empleado1.setTimepoCompleto(Boolean.valueOf(data[3]));
-//                    empleado1.setDepartamento(data[4]);
-                    empleado1.setNombreDepartamento(data[4]);
+                    departamento.setNombreDepartamento(data[4]);
+                    empleado1.setDepartamento(departamento);
                     empleados.add(empleado1);
-
+                    logger.info("*** Fin: parseCSVArchivo ***");
                 }
                 return empleados;
             }
@@ -99,6 +108,13 @@ public class EmpleadoNegocio {
             throw new Exception("Fallo la conversion del archivo CSV {}", e);
         }
 
+    }
+
+    @Async
+    public CompletableFuture<List<Empleado>> findAllEmpleados() {
+        logger.info("Obteniedo lista de todos los empleados" + Thread.currentThread().getName());
+        List<Empleado> empleado = empleadoRepository.findAll();
+        return CompletableFuture.completedFuture(empleado);
     }
 
 

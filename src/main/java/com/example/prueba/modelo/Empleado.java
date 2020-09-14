@@ -1,12 +1,7 @@
 package com.example.prueba.modelo;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.springframework.dao.DeadlockLoserDataAccessException;
-
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "EMPLEADO")
@@ -33,7 +28,6 @@ public class Empleado {
     private Departamento departamento ;
 
 
-    private String nombreDepartamento;
 
     public Empleado() {
         super();
@@ -87,11 +81,4 @@ public class Empleado {
         this.departamento = departamento;
     }
 
-    public String getNombreDepartamento() {
-        return nombreDepartamento;
-    }
-
-    public void setNombreDepartamento(String nombreDepartamento) {
-        this.nombreDepartamento = nombreDepartamento;
-    }
 }

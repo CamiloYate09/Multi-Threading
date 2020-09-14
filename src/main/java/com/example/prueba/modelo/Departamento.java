@@ -2,15 +2,9 @@ package com.example.prueba.modelo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -28,6 +22,7 @@ public class Departamento {
     private String nombreDepartamento;
 
     @OneToMany(mappedBy="departamento")
+    @JsonIgnore
     private Set<Empleado> empleados = new HashSet<>();
 
 
