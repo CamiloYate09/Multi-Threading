@@ -2,8 +2,11 @@ package com.example.prueba.modelo;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.springframework.dao.DeadlockLoserDataAccessException;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "EMPLEADO")
@@ -13,28 +16,28 @@ public class Empleado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(length = 50 ,name = "nombre", nullable = false)
+    @Column(length = 50, name = "nombre", nullable = false)
     private String nombre;
 
-    @Column(length = 50 ,name = "cargo", nullable = false)
+    @Column(length = 50, name = "cargo", nullable = false)
     private String cargo;
 
-    @Column(length = 18 ,name = "salario", nullable = false)
+    @Column(length = 18, name = "salario", nullable = false)
     private Double salario;
 
     @Column(name = "tiempo_completo", nullable = false)
     private Boolean timepoCompleto;
 
-
     @ManyToOne
-    @JoinColumn(name = "FK_DEPARTAMENTO", nullable = false, updatable = false)
-    @JsonBackReference
-    private Departamento departamento;
+    @JoinColumn(name="departamento", referencedColumnName="DEPAR_ID")
+    private Departamento departamento ;
+
+
+    private String nombreDepartamento;
 
     public Empleado() {
         super();
     }
-
 
     public long getId() {
         return id;
@@ -43,7 +46,6 @@ public class Empleado {
     public void setId(long id) {
         this.id = id;
     }
-
 
     public String getNombre() {
         return nombre;
@@ -83,5 +85,13 @@ public class Empleado {
 
     public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;
+    }
+
+    public String getNombreDepartamento() {
+        return nombreDepartamento;
+    }
+
+    public void setNombreDepartamento(String nombreDepartamento) {
+        this.nombreDepartamento = nombreDepartamento;
     }
 }

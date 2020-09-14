@@ -1,39 +1,46 @@
 package com.example.prueba.modelo;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 
 @Entity
 @Table(name = "DEPARTAMENTO")
+
 public class Departamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "DEPAR_ID")
+    private long idDepartamento;
 
     @Column(length = 50 ,name = "nombre_Departamento", nullable = false)
     private String nombreDepartamento;
 
-    @OneToMany( cascade = CascadeType.ALL, mappedBy = "departamento", orphanRemoval = true)
-    @JsonManagedReference
-    private List<Empleado> departamento = new ArrayList<>();
+    @OneToMany(mappedBy="departamento")
+    private Set<Empleado> empleados = new HashSet<>();
 
 
     public Departamento() {
         super();
     }
 
-
-    public long getId() {
-        return id;
+    public long getIdDepartamento() {
+        return idDepartamento;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setIdDepartamento(long idDepartamento) {
+        this.idDepartamento = idDepartamento;
     }
 
     public String getNombreDepartamento() {
@@ -44,11 +51,11 @@ public class Departamento {
         this.nombreDepartamento = nombreDepartamento;
     }
 
-    public List<Empleado> getDepartamento() {
-        return departamento;
+    public Set<Empleado> getEmpleados() {
+        return empleados;
     }
 
-    public void setDepartamento(List<Empleado> departamento) {
-        this.departamento = departamento;
+    public void setEmpleados(Set<Empleado> empleados) {
+        this.empleados = empleados;
     }
 }
