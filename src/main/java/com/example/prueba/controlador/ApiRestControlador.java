@@ -2,10 +2,12 @@ package com.example.prueba.controlador;
 
 
 import com.example.prueba.Negocio.EmpleadoNegocio;
+import com.example.prueba.exception.ResourceNotFoundException;
 import com.example.prueba.modelo.Departamento;
 import com.example.prueba.modelo.Empleado;
 import com.example.prueba.repositorio.DepartamentoRepository;
 import com.example.prueba.repositorio.EmpleadoRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +41,11 @@ public class ApiRestControlador {
     private DepartamentoRepository departamentoRepository;
 
     /*
-Crear Intereses Compuestos
+Crear Empleados con sus departamentos
 * */
     @PostMapping(value = "/crearEmpleado", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity crearEmpleado(@RequestParam(value = "files") MultipartFile[] files) throws Exception {
+    public ResponseEntity crearEmpleado(@RequestParam(value = "files") MultipartFile[] files) throws Exception, JsonProcessingException, ResourceNotFoundException {
         logger.info("Ingreso al método crearEmpleado");
 
         for (MultipartFile file : files) {
@@ -54,16 +56,28 @@ Crear Intereses Compuestos
 
     }
 
-
+    /**
+     * Consulta todos los empleados
+     * @return
+     * @throws JsonProcessingException
+     * @throws ResourceNotFoundException
+     */
     @GetMapping(value = "/todos", produces = "application/json")
-    public CompletableFuture<ResponseEntity<List<Empleado>>> findAllEmpleados() {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public CompletableFuture<ResponseEntity<List<Empleado>>> findAllEmpleados() throws JsonProcessingException, ResourceNotFoundException {
         return empleadoNegocio.findAllEmpleados().thenApply(ResponseEntity::ok);
     }
 
 
+    /**
+     * Consulta los 5 salarios mas altos
+     * @return
+     * @throws JsonProcessingException
+     * @throws ResourceNotFoundException
+     */
     @GetMapping(value = "/salario", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List> empeladosSalario() {
+    public ResponseEntity<List> empeladosSalario()throws JsonProcessingException, ResourceNotFoundException  {
         logger.info("Ingreso al método empeladosSalario");
         ResponseEntity<List> respuesta = null;
         List empleado = empleadoRepository.empleadosSalarioTop();
@@ -73,9 +87,15 @@ Crear Intereses Compuestos
 
     }
 
+    /**
+     * Consulta los salarios por deparamento agrupados
+     * @return
+     * @throws JsonProcessingException
+     * @throws ResourceNotFoundException
+     */
     @GetMapping(value = "/salarioDeparta", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List> empleadosSalarioDepartamento() {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<List> empleadosSalarioDepartamento() throws JsonProcessingException, ResourceNotFoundException  {
         logger.info("Ingreso al método empleadosSalarioDepartamento");
         ResponseEntity<List> respuesta = null;
         List empleado = empleadoRepository.empleadosSalarioDepartamento();
@@ -85,13 +105,22 @@ Crear Intereses Compuestos
 
     }
 
+    /**
+     * Consulta por identificados del Departamento y sus empleados que hacen parte
+     * @param departamentoId
+     * @param pageable
+     * @return
+     * @throws JsonProcessingException
+     * @throws ResourceNotFoundException
+     */
 
     @GetMapping("/departamento/{departamentoId}")
     public Page<Departamento> empleadosDepartamentoID(@PathVariable (value = "departamentoId") Long departamentoId,
-                                                     Pageable pageable) {
+                                                     Pageable pageable)throws ResourceNotFoundException  {
         logger.info("Ingreso al método empleadosDepartamentoID");
         logger.info("departamentoId {} ",departamentoId);
-        return departamentoRepository.empleadosDepartamentoID(departamentoId, pageable);
+        Departamento departamentoID = departamentoRepository.findById(departamentoId).orElseThrow(() -> new ResourceNotFoundException("No se encontró Información con el Identificador :" + departamentoId));
+        return departamentoRepository.empleadosDepartamentoID(departamentoID.getIdDepartamento(), pageable);
     }
 
 }

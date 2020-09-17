@@ -37,6 +37,13 @@ public class EmpleadoNegocio {
     @Autowired
     private DepartamentoRepository departamentoRepository;
 
+
+    /**
+     * Clase encargada de el leer el archivo plano y guardar cada empleados con su departamento
+     * @param archivo
+     * @return
+     * @throws Exception
+     */
     @Async
     public CompletableFuture<List<Empleado>> crearEmpleados(MultipartFile archivo) throws Exception {
 
