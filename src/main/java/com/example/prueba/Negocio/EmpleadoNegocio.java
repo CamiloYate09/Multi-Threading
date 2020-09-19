@@ -45,35 +45,37 @@ public class EmpleadoNegocio {
      * @throws Exception
      */
     @Async
-    public CompletableFuture<List<Empleado>> crearEmpleados(MultipartFile archivo) throws Exception {
+    public CompletableFuture<Empleado> crearEmpleados(MultipartFile archivo) throws Exception {
 
         long start = System.currentTimeMillis();
-        List<Empleado> empleadoInsertar = new ArrayList<>();
+        Departamento departamento;
+        Empleado empleadoRespuesta = null;
         List<Empleado> empleadoLeido = parseCSVArchivo(archivo);
         logger.info("Guardar Lista de Usuario con size {}", empleadoLeido.size(), "" + Thread.currentThread().getName());
         for (Empleado empleado : empleadoLeido) {
-            Departamento idDepartment = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getDepartamento().getNombreDepartamento());
-            if (Objects.isNull(idDepartment)) {
+             departamento = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getDepartamento().getNombreDepartamento());
+            if (Objects.isNull(departamento)) {
                 logger.info("*** Inicio: Departamento Núlo ***");
                 Departamento valor = new Departamento();
                 valor.setNombreDepartamento(empleado.getDepartamento().getNombreDepartamento());
-                departamentoRepository.save(valor);
+                departamento = departamentoRepository.save(valor);
                 logger.info("*** Inicio: Departamento Guardado ***");
 
             }
-            Departamento idDepartamentoBusqueda = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getDepartamento().getNombreDepartamento());
-            if (idDepartamentoBusqueda != null) {
+//            Departamento idDepartamentoBusqueda = departamentoRepository.findAllActiveDepartamenteIndex(empleado.getDepartamento().getNombreDepartamento());
+            if (departamento != null) {
                 logger.info("*** Inicio: Departamento Existente ***");
-                empleado.setDepartamento(idDepartamentoBusqueda);
-                empleadoInsertar.add((Empleado) empleado);
-                empleadoInsertar = empleadoRepository.saveAll(empleadoInsertar);
+                empleado.setDepartamento(departamento);
+
+                empleadoRespuesta = empleadoRepository.save(empleado);
                 logger.info("*** Inicio: Empleado Guardado ***");
             }
         }
 
         long end = System.currentTimeMillis();
         logger.info("Tiempo Total {}", (end - start));
-        return CompletableFuture.completedFuture(empleadoInsertar);
+
+        return CompletableFuture.completedFuture(empleadoRespuesta);
 
 
     }

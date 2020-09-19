@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -116,11 +119,12 @@ Crear Empleados con sus departamentos
 
     @GetMapping("/departamento/{departamentoId}")
     public Page<Departamento> empleadosDepartamentoID(@PathVariable (value = "departamentoId") Long departamentoId,
-                                                     Pageable pageable)throws ResourceNotFoundException  {
+                                                      @RequestParam Optional<Integer> page , @RequestParam Optional<String> orderBY)throws ResourceNotFoundException  {
         logger.info("Ingreso al método empleadosDepartamentoID");
         logger.info("departamentoId {} ",departamentoId);
         Departamento departamentoID = departamentoRepository.findById(departamentoId).orElseThrow(() -> new ResourceNotFoundException("No se encontró Información con el Identificador :" + departamentoId));
-        return departamentoRepository.empleadosDepartamentoID(departamentoID.getIdDepartamento(), pageable);
+        logger.info("departamentoId {} ",departamentoID.getNombreDepartamento());
+        return departamentoRepository.empleadosDepartamentoID(departamentoID.getIdDepartamento(),  PageRequest.of( page.orElse(0),5));
     }
 
 }

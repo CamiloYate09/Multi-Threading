@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "DEPARTAMENTO")
 
-public class Departamento {
+public class Departamento  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +20,15 @@ public class Departamento {
     @Column(length = 50 ,name = "nombre_Departamento", nullable = false)
     private String nombreDepartamento;
 
+
+    /**
+     * TODO para este caso es mejor una lista porque es más liviana
+     * cambio el Set no permite repetidos
+     */
     @OneToMany(mappedBy="departamento")
     @JsonIgnore
     private Set<Empleado> empleados = new HashSet<>();
+
 
 
     public Departamento() {
